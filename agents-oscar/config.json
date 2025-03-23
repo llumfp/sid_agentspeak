@@ -1,7 +1,7 @@
 {
-    "host": "JAVI22.mshome.net",
-    "manager": "cmanager-javi",
-    "service": "cservice-javi",
+    "host": "sidfib.mooo.com",
+    "manager": "cmanager-gia",
+    "service": "cservice-gia",
     "axis": [
         {
             "rank": "BDISoldier",

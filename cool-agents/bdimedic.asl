@@ -13,8 +13,11 @@
     +pack_taken(1002, 20).
 
 
-+enemies_in_fov(ID,Type,Angle,Distance,Health,Position): ammo(X) & X > 0
++enemies_in_fov(ID,Type,Angle,Distance,Health,Position)
   <- 
   .shoot(5,Position).
 
 // TEAM ALLIED (ATACANTE)
++flag (F): team(100)
+    <-
+    .goto(F).
