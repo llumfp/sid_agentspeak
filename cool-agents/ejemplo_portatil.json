@@ -1,7 +1,7 @@
 {
-    "host": "sidfib.mooo.com",
-    "manager": "cmanager-gia",
-    "service": "cservice-gia",
+    "host": "10.192.53.38",
+    "manager": "cmanager-13",
+    "service": "cservice-13",
     "axis": [
         {
             "rank": "BDISoldier",
