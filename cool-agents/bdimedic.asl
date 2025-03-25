@@ -42,11 +42,13 @@
 +target_reached(_): yendo_sanacion
     <-
     .print("Sanación cogida");
+    -target_reached(_);
     -yendo_sanacion.
 
 +target_reached(_): yendo_municion
     <-
     .print("Munición cogida");
+    -target_reached(_);
     -yendo_municion.
 
 // Cuando ve a un enemigo y tiene suficiente vida
@@ -78,6 +80,7 @@
 +target_reached(Position): curando
     <-
     -curando;
+    -target_reached(Position);
     .cure;
     .print("Curando al aliado ");
     .create_control_points(Position, 10, 2, Pos_cerca_allied); // Crear puntos cercanos a la base
@@ -133,12 +136,14 @@
     <-
     .cure;
     .print("Creando cura propia");
+    -target_reached(_);
     !do_patroll([160, 0, 180]).
 
 +target_reached(_) : volviendo_a_base & team(100)
     <-
     .cure;
     .print("Creando cura propia");
+    -target_reached(_);
     !do_patroll([20, 0, 60]).
 
 +!rotar <-
