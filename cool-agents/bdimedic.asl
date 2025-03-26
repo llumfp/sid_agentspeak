@@ -3,13 +3,13 @@
 //BasePoints(base_points) :- team(100) & base_points = [20, 0, 80].
 
 
-// TEAM AXIS (defensor) AND ALLIED
+// TEAM AXIS (defensor)
 +flag (F): team(200)
     <-
     .create_control_points([160, 0, 180], 20, 3, BasePoints_all); // Crear puntos cercanos a la base
     !do_patroll(BasePoints_all).
 
-
+// TEAM ALLIED (atacante)
 +flag (F): team(100)
     <-
     .create_control_points([20, 0, 80], 20, 3, BasePoints_all); // Crear puntos cercanos a la base
@@ -85,7 +85,6 @@
     .print("Curando al aliado ");
     .create_control_points(Position, 10, 2, Pos_cerca_allied); // Crear puntos cercanos a la base
     !do_patroll(Pos_cerca_allied).
-
 
 // Manejo de los puntos de patrulla
 +patroll_point(P): total_control_points(T) & P<T
