@@ -20,3 +20,7 @@ echo "Iniciando agentes PyGOMAS..."
 gnome-terminal -- bash -ic "pyenv activate sid; cd $AGENTS_DIR && pygomas run -g $CONFIG_FILE; exec bash" &
 
 echo "PyGOMAS en ejecución. Cierra las terminales manualmente cuando hayas terminado."
+
+sleep 10
+
+rm pygomas_stats.txt
