@@ -25,6 +25,17 @@
   .print("Meta: take_flag. Moviendose hacia la bandera en: ", F);
   .goto(F).
 
+/* ----------------------------------------------------------------------
+
+`bring_flag_home` solo se dispara en caso de coger la bandera!
+
+Si el agente soldado ha sido más lento que otro soldado porque ha 
+empezado en una posición de la base más alejada, no cogerá la bandera.
+
+Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
+
+---------------------------------------------------------------------- */
+
 +flag_taken : true <-
   !bring_flag_home.
 
