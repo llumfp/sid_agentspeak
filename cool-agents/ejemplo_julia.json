@@ -1,0 +1,46 @@
+{
+    "host": "sidfib.mooo.com",
+    "manager": "cmanager-gia2",
+    "service": "cservice-gia2",
+    "axis": [
+        {
+            "rank": "BDISoldier",
+            "name": "bdi_soldier_1",
+            "password": "patata",
+            "asl": "bdisoldier.asl"
+        },
+        {
+            "rank": "BDIMedic",
+            "name": "bdi_medic_extra_1",
+            "password": "patata",
+            "asl": "bdimedic_extra.asl"
+        },
+        {
+            "rank": "BDIFieldOp",
+            "name": "bdi_fieldop_1",
+            "password": "patata",
+            "asl": "bdifieldop.asl"
+        }
+    ],
+    "allied": [
+        {
+            "rank": "BDISoldier",
+            "name": "bdi_soldier_2",
+            "password": "patata",
+            "asl": "bdisoldier.asl",
+            "amount": 3
+        },
+        {
+            "rank": "BDIMedic",
+            "name": "bdi_medic_extra_2",
+            "password": "patata",
+            "asl": "bdimedic_extra.asl"
+        },
+        {
+            "rank": "BDIFieldOp",
+            "name": "bdi_fieldop_2",
+            "password": "patata",
+            "asl": "bdifieldop.asl"
+        }
+    ]
+}

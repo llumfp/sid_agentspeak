@@ -1,4 +1,6 @@
 /env
+/venv
+/pygomas
 
 # Stats
 pygomas_stats.txt
