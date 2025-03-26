@@ -7,19 +7,22 @@
             "rank": "BDISoldier",
             "name": "bdi_soldier_1",
             "password": "patata",
-            "asl": "axis/bdisoldier.asl"
+            "asl": "axis/bdisoldier.asl",
+            "amount": 0
         },
         {
             "rank": "BDIMedic",
             "name": "bdi_medic_1",
             "password": "patata",
-            "asl": "axis/bdimedic.asl"
+            "asl": "axis/bdimedic.asl",
+            "amount": 0
         },
         {
             "rank": "BDIFieldOp",
             "name": "bdi_fieldop_1",
             "password": "patata",
-            "asl": "axis/bdifieldop.asl"
+            "asl": "axis/bdifieldop.asl",
+            "amount": 0
         }
     ],
     "allied": [
@@ -34,13 +37,15 @@
             "rank": "BDIMedic",
             "name": "bdi_medic_2",
             "password": "patata",
-            "asl": "allied/bdimedic.asl"
+            "asl": "allied/bdimedic.asl",
+            "amount": 0
         },
         {
             "rank": "BDIFieldOp",
             "name": "bdi_fieldop_2",
             "password": "patata",
-            "asl": "allied/bdifieldop.asl"
+            "asl": "allied/bdifieldop.asl",
+            "amount": 0
         }
     ]
 }
