@@ -2,7 +2,7 @@
 
 MANAGER_JID=${MANAGER_JID:-"cmanager-gia@sidfib.mooo.com"}
 SERVICE_JID=${SERVICE_JID:-"cservice-gia@sidfib.mooo.com"}
-NUM_PLAYERS=${NUM_PLAYERS:-1}
+NUM_PLAYERS=${NUM_PLAYERS:-6}
 AGENTS_DIR=${AGENTS_DIR:-"/home/oscar/sid/sid_agentspeak/agents-oscar"}
 CONFIG_FILE=${CONFIG_FILE:-"/home/oscar/sid/sid_agentspeak/agents-oscar/config.json"}
 
@@ -11,7 +11,7 @@ if [ -f pygomas_stats.txt ]; then
 fi
 
 echo "Iniciando PyGOMAS Manager..."
-gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m mine; exec bash" &
+gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS ; exec bash" &
 
 sleep 5
 

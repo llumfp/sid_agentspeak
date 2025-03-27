@@ -9,9 +9,13 @@
 !capture_flag.
 
 /* =================== META PRINCIPAL =================== */
+
 /* El soldado debe capturar la bandera */
+
 +!capture_flag : true <-
   .print("Meta: capture_flag iniciada");
+  ?health(H);
+  ?ammo(A);
   .print("Estado inicial: health=", H, " ammo=", A);
   !assess_flag.
 
@@ -39,7 +43,7 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
 +flag_taken : true <-
   !bring_flag_home.
 
-+!bring_flag_home : base(B) <-
++!bring_flag_home : base(B) & flag(F) <-
   .print("He llegado a la bandera en: ", F, ". Capturando bandera...");
   .print("Meta: bring_flag_home. Moviendose hacia la base en: ", B);
   +returning;
@@ -48,3 +52,4 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
 +target_reached(T) : returning <-
   -returning;
   .print("He llegado a la base en: ", B, ". Entregando bandera.").
+
