@@ -23,6 +23,7 @@ Each agent is designed to perceive the environment, make rational decisions, and
 - **Medic 🏥**: Creates **healing packs** that restore health to teammates.
 
 ## Implementation Details
+---
 
 ## Contributors
 - Òscar Molina
