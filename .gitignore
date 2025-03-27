@@ -1,7 +1,7 @@
 /env
 /venv
 /pygomas
-
+.DS_Store
 # Stats
 ./pygomas_stats.txt
 
