@@ -1,4 +1,4 @@
-// ====== ESTRATEGIA PARA MÉDICO EXTRA ======
+// ====== ESTRATEGIA PARA MÉDICO 2 ======
 
 // Umbral para considerar mala salud propia
 health_threshold(40).
@@ -9,7 +9,7 @@ health_threshold(40).
 +flag(F): team(200)
   <-
   .print("Inicializando medico defensor");
-  // Crear puntos de patrulla más cercanos al flag (radio pequeño, más puntos)
+  // Crear puntos de patrulla mas cercanos al flag (radio pequeño, más puntos)
   .create_control_points(F, 20, 6, C);
   +control_points(C);
   .length(C, L);
@@ -29,36 +29,20 @@ health_threshold(40).
 
 // === COMPORTAMIENTO DE EQUIPO ALLIED ===
 
-// Cuando llegamos al objetivo (bandera)
-+target_reached(T): team(100) & objective(F)
-  <-
-  .print("Objetivo alcanzado, dejando pack médico en la bandera");
-  .cure;
-  // Actualizamos backups para tener soldados a quienes seguir
-  .get_backups;
-  // Limpiamos el evento
-  -target_reached(T).
-
-// Cuando conseguimos la lista de soldados y hay al menos uno
-+myBackups(S): team(100) & .length(S, L) & L > 0
-  <-
-  .nth(0, S, FirstSoldier);
-  .print("Siguiendo a soldado: ", FirstSoldier);
-  .goto(FirstSoldier).
-
-// Cuando conseguimos la lista de soldados pero está vacía
-+myBackups(S): team(100) & .length(S, L) & L == 0
-  <-
-  .print("No hay soldados disponibles, volviendo al objetivo");
-  ?objective(F);
-  .goto(F).
-
-// Captura de la bandera
+// Cuando la bandera es capturada
 +flag_taken: team(100)
   <-
   .print("¡BANDERA CAPTURADA! Volviendo a base");
   ?base(B);
+  +returning;
   .goto(B).
+
+// Detectar soldados en el campo de visión y seguirlos
+//+friends_in_fov(ID, Type, Angle, Distance, Health, Position): Type == 1 & team(100)
+// <-
+//.print("Soldado detectado en FOV, siguiendolo");
+//.goto(Position).
+
 
 // === PATRULLAJE (EQUIPO AXIS) ===
 
@@ -66,7 +50,7 @@ health_threshold(40).
 +target_reached(T): patrolling & team(200) & patrol_point(P) & total_control_points(TP) & P + 1 < TP
   <-
   // Dejar un pack médico en cada punto de patrulla
-  .print("Punto de patrulla alcanzado, dejando pack médico");
+  .print("Punto de patrulla alcanzado, dejando pack medico");
   .cure;
   // Actualizar al siguiente punto
   -+patrol_point(P + 1);
@@ -81,7 +65,7 @@ health_threshold(40).
 +target_reached(T): patrolling & team(200) & patrol_point(P) & total_control_points(TP) & P + 1 >= TP
   <-
   // Dejar un pack médico en cada punto de patrulla
-  .print("Último punto de patrulla alcanzado, reiniciando");
+  .print("Ultimo punto de patrulla alcanzado, reiniciando");
   .cure;
   // Volver al primer punto
   -+patrol_point(0);
@@ -103,15 +87,15 @@ health_threshold(40).
   .turn(0.5).
 
 // Ver enemigos a distancia segura - solo curar
-+enemies_in_fov(ID, Type, Angle, Distance, Health, Position): Distance >= 15 & Health >= 30
++enemies_in_fov(ID, Type, Angle, Distance, Health, Position): Distance >= 40 & Health >= 30
   <-
-  .print("Enemigo a distancia segura, creando pack médico");
+  .print("Enemigo a distancia segura, creando pack medico");
   .cure.
 
-// Ver enemigos a distancia segura - curar y dispararles 
-+enemies_in_fov(ID, Type, Angle, Distance, Health, Position): Distance >= 15  & ammo(A) & A > 10
+// Ver enemigos a distancia segura - curar y dispararles
++enemies_in_fov(ID, Type, Angle, Distance, Health, Position): Distance >= 15  & ammo(A) & A > 5
   <-
-  .print("Enemigo débil detectado, disparando");
+  .print("Enemigo detectado, disparando!");
   .cure;
   .shoot(5, Position).
 
@@ -120,14 +104,14 @@ health_threshold(40).
 // Ver aliados con poca vida - PRIORIDAD ALTA
 +friends_in_fov(ID, Type, Angle, Distance, Health, Position): Health < 50
   <-
-  .print("¡Aliado con salud crítica detectado! ID: ", ID, " Salud: ", Health);
+  .print("¡Aliado con salud critica detectado! ID: ", ID, " Salud: ", Health);
   .goto(Position);
   .cure.
 
 // Cuando estamos cerca de un aliado, crear pack médico proactivamente
 +friends_in_fov(ID, Type, Angle, Distance, Health, Position): Distance < 5
   <-
-  .print("Aliado cercano, creando pack médico preventivo");
+  .print("Aliado cercano, creando pack medico preventivo");
   .cure.
 
 // === AUTO-PRESERVACIÓN ===
@@ -135,40 +119,24 @@ health_threshold(40).
 // Si tenemos poca vida, curarnos y buscar refugio
 +health(H): health_threshold(T) & H < T
   <-
-  .print("¡Salud crítica! Curándome");
+  .print("¡Salud critica! Curandome");
   .cure;
-  // Retirarse a una posición segura temporalmente
+  // Retirarse a una posicion segura temporalmente
   .turn(1.0);
   .wait(1000).
 
 // Cuando nos curamos, volvemos a nuestra tarea (Allied)
 +pack_taken(medic, Q): team(100)
   <-
-  .print("Pack médico recogido: +", Q, " de salud");
+  .print("Pack medico recogido: +", Q, " de salud");
   .get_backups.
 
 // Cuando nos curamos, volvemos a nuestra tarea (Axis)
 +pack_taken(medic, Q): team(200)
   <-
-  .print("Pack médico recogido: +", Q, " de salud");
+  .print("Pack medico recogido: +", Q, " de salud");
   ?patrol_point(P);
   ?control_points(C);
   .nth(P, C, Pos);
   .goto(Pos).
 
-// Si tenemos poca munición, seguir igual - la prioridad es curar
-+ammo(A): A < 10
-  <-
-  .print("Munición baja, pero no es prioridad para un médico").
-
-// === MOVIMIENTO ===
-
-// Si estamos detenidos, explorar y buscar aliados
-+heading(H): team(100)
-  <-
-  .print("Explorando y creando packs médicos");
-  .cure;
-  .wait(2000);
-  // Refrescar soldados periódicamente
-  .get_backups;
-  .turn(0.25).
