@@ -1,4 +1,4 @@
-// ====== ESTRATEGIA PARA MÉDICO 2 ======
+// ====== ESTRATEGIA PARA MÉDICO EXTRA ======
 
 // Umbral para considerar mala salud propia
 health_threshold(40).
@@ -9,7 +9,7 @@ health_threshold(40).
 +flag(F): team(200)
   <-
   .print("Inicializando medico defensor");
-  // Crear puntos de patrulla mas cercanos al flag (radio pequeño, más puntos)
+  // Crear puntos de patrulla mas cercanos al flag (radio pequeño, mas puntos)
   .create_control_points(F, 20, 6, C);
   +control_points(C);
   .length(C, L);
@@ -20,16 +20,16 @@ health_threshold(40).
   .nth(0, C, Position);
   .goto(Position).
 
-// EQUIPO ALLIED - OFENSIVO: Ir directamente a por la bandera
+// === COMPORTAMIENTO DE EQUIPO ALLIED ===
+// EQUIPO ALLIED - OFENSIVO: Ir directamente a por la bandera, 
+// ya que es donde seguramente irán los compañeros
 +flag(F): team(100)
   <-
   .print("Inicializando medico atacante, yendo hacia bandera");
   +objective(F);
   .goto(F).
 
-// === COMPORTAMIENTO DE EQUIPO ALLIED ===
-
-// Cuando la bandera es capturada
+// Si se da el caso que la bandera es capturada -- volver base
 +flag_taken: team(100)
   <-
   .print("¡BANDERA CAPTURADA! Volviendo a base");
@@ -37,7 +37,8 @@ health_threshold(40).
   +returning;
   .goto(B).
 
-// Detectar soldados en el campo de visión y seguirlos
+// Detectar soldados en el campo de visión y seguirlos -- pierde el foco de ir a la bandera
+// puede que con un equipo con más soldados mejor descomentar
 //+friends_in_fov(ID, Type, Angle, Distance, Health, Position): Type == 1 & team(100)
 // <-
 //.print("Soldado detectado en FOV, siguiendolo");
@@ -104,15 +105,15 @@ health_threshold(40).
 // Ver aliados con poca vida - PRIORIDAD ALTA
 +friends_in_fov(ID, Type, Angle, Distance, Health, Position): Health < 50
   <-
-  .print("¡Aliado con salud critica detectado! ID: ", ID, " Salud: ", Health);
+  .print("Aliado con salud critica detectado! ID: ", ID, " Salud: ", Health);
   .goto(Position);
   .cure.
 
-// Cuando estamos cerca de un aliado, crear pack médico proactivamente
-+friends_in_fov(ID, Type, Angle, Distance, Health, Position): Distance < 5
-  <-
-  .print("Aliado cercano, creando pack medico preventivo");
-  .cure.
+// Cuando estamos cerca de un aliado, crear pack médico proactivamente -- es despista si just esta a la bandera
+//+friends_in_fov(ID, Type, Angle, Distance, Health, Position): Distance < 5
+//<-
+//.print("Aliado cercano, creando pack medico preventivo");
+//.cure.
 
 // === AUTO-PRESERVACIÓN ===
 
@@ -125,18 +126,17 @@ health_threshold(40).
   .turn(1.0);
   .wait(1000).
 
-// Cuando nos curamos, volvemos a nuestra tarea (Allied)
-+pack_taken(medic, Q): team(100)
+// Ver packs de munición cuando tenemos poca munición
++packs_in_fov(ID, 1002, Angle, Distance, Health, Position): ammo(A) & A <= 40 & not yendo_municion
   <-
-  .print("Pack medico recogido: +", Q, " de salud");
-  .get_backups.
+  .print("Pack de municion detectado! Yendo a por el");
+  +yendo_municion;
+  .goto(Position).
 
-// Cuando nos curamos, volvemos a nuestra tarea (Axis)
-+pack_taken(medic, Q): team(200)
+// Cuando llegamos al pack de munición
++target_reached(T): yendo_municion
   <-
-  .print("Pack medico recogido: +", Q, " de salud");
-  ?patrol_point(P);
-  ?control_points(C);
-  .nth(P, C, Pos);
-  .goto(Pos).
+  .print("He recargando balas, vamos a curar!");
+  -yendo_municion;
+  -target_reached(T).
 

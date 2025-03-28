@@ -11,7 +11,7 @@
         },
         {
             "rank": "BDIMedic",
-            "name": "bdi_medic_extra_2",
+            "name": "bdi_medic_extra_1",
             "password": "patata",
             "asl": "bdimedic_extra.asl"
         },
@@ -19,7 +19,7 @@
             "rank": "BDIFieldOp",
             "name": "bdi_fieldop_1",
             "password": "patata",
-            "asl": "bdifieldop.asl"
+            "asl": "../base-agents/bdifieldop.asl"
         }
     ],
     "allied": [
@@ -40,7 +40,7 @@
             "rank": "BDIFieldOp",
             "name": "bdi_fieldop_2",
             "password": "patata",
-            "asl": "bdifieldop.asl"
+            "asl": "../base-agents/bdifieldop.asl"
         }
     ]
 }

@@ -29,6 +29,6 @@
   -patroll_point(P);
   +patroll_point(0).
 
-+enemies_in_fov(ID,Type,Angle,Distance,Health,Position)
-  <- 
-  .shoot(3,Position).
+// +enemies_in_fov(ID,Type,Angle,Distance,Health,Position)
+  // <- 
+  //.shoot(3,Position). //
