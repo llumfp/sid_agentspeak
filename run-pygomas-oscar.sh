@@ -10,13 +10,20 @@ if [ -f pygomas_stats.txt ]; then
     rm pygomas_stats.txt
 fi
 
+rm -rf ~/.cache/qtshadercache-x86_64-little_endian-lp64
+rm -rf ~/.cache/matplotlib
+rm -rf ~/.cache/pip
+rm -rf ~/.cache/mesa_shader_cache
+rm -rf ~/.cache/mesa_shader_cache_db
+rm -rf ~/.cache/fontconfig
+
 echo "Iniciando PyGOMAS Manager..."
-gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS ; exec bash" &
+gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m map_04; exec bash" &
 
 sleep 5
 
 echo "Iniciando PyGOMAS Render..."
-gnome-terminal -- bash -ic "pyenv activate sid; pygomas render; exec bash" &
+gnome-terminal -- bash -ic "pyenv activate sid; pygomas render ; exec bash" &
 
 sleep 1
 
@@ -24,3 +31,5 @@ echo "Iniciando agentes PyGOMAS..."
 gnome-terminal -- bash -ic "pyenv activate sid; cd $AGENTS_DIR && pygomas run -g $CONFIG_FILE; exec bash" &
 
 echo "PyGOMAS en ejecución. Cierra las terminales manualmente cuando hayas terminado."
+
+exit

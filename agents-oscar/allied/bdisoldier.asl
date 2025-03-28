@@ -53,3 +53,8 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
   -returning;
   .print("He llegado a la base en: ", B, ". Entregando bandera.").
 
+/* =================== REACCIÓN DE ATAQUE =================== */
+
++enemies_in_fov(ID, TYPE, ANGLE, DIST, HEALTH, [X,Y,Z]) : true <-
+  .shoot(20,[X,Y,Z]).
+
