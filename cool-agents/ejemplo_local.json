@@ -34,7 +34,7 @@
             "rank": "BDIMedic",
             "name": "bdi_medic_2",
             "password": "patata",
-            "asl": "bdimedic.asl"
+            "asl": "bdimedic_extra.asl"
         },
         {
             "rank": "BDIFieldOp",

@@ -15,10 +15,10 @@ P = Punto de patrulla actual
 T = Total de puntos de control
 A = Nuevo Punto de control al que ir
 
-ID_san_pack = ID del pack de sanación
+TYPE_san_pack = Tipo del pack de sanación
 Pos_san_pack = Posición del pack de sanación
 
-ID_ammo_pack = ID del pack de munición
+TYPE_ammo_pack = Tipo del pack de munición
 Pos_ammo_pack = Posición del pack de munición
 
 ID_enemy = ID del enemigo
@@ -71,7 +71,10 @@ Position_ally = Posición del aliado
 
 
 /*
-Plan principal, Patrullar alrededor de una posición intermedia entre la base y la flag para poder explorar el mapa y observar posibles enemigos o amigos
+########################### Bucle del patrullaje ######################
+Plan principal, Patrullar alrededor de una posición intermedia entre 
+la base y la flag para poder explorar el mapa y observar posibles enemigos o amigos
+################################################################################
 */
 
 +!do_patroll(Pos)
@@ -81,54 +84,182 @@ Plan principal, Patrullar alrededor de una posición intermedia entre la base y 
     -+total_control_points(L);
     -+patrolling;
     -+patroll_point(0);
-    .print("Iniciando patrulla cerca del punto ", Pos).
+    .print("Iniciando patrulla cerca de los puntos", Pos).
 
-
-
-+packs_in_fov(ID_san_pack, _, _, _, _, Pos_san_pack) : ID_san_pack == 1001 & health(H) & H <= 50
+// Manejo de los puntos de patrulla
++patroll_point(P): total_control_points(L) & P<L & control_points(Pos)
     <-
-    .print("Yendo a por un pack de sanación en la posición ", Pos_san_pack);
-    +yendo_sanacion;
-    .goto(Pos_san_pack).
+    .nth(P,Pos,A);
+    .print("Yendo al punto", A, "(", P, " de ", L, ")");
+    .goto(A).
 
-
-+packs_in_fov(ID_ammo_pack, _, _, _, _, Pos_ammo_pack) :ID_ammo_pack == 1002 & ammo(M) & M <= 50
++patroll_point(P): total_control_points(T) & P==T
     <-
-    .print("Yendo a por un pack de munición en la posición ", Pos_ammo_pack);
-    +yendo_municion;
+    -+patroll_point(0);
+    -total_control_points(T);
+    .get_backups;
+    !patroll_at_midpoint.
+
++target_reached(A): patrolling & patroll_point(P) & total_control_points(L) & P + 1 <= L
+    <-
+    +san_pack(A);
+    .cure;
+    .print("Dejando cura preventiva y guardando su ubicación en", A);
+    ?patroll_point(P);
+    -+patroll_point(P+1);
+    -target_reached(A);
+    .print("Punto alcanzado ", A).
+
++target_reached(A): patrolling & patroll_point(P) & total_control_points(L) & P + 1 > L
+    <-
+    -patrol_point(P);
+    -total_control_points(L);
+    -target_reached(A);
+    -patrolling;
+    .get_backups;
+    .print("Patrullaje terminado, empezando un nuevo patrullaje");
+    !patroll_at_midpoint.
+
+/*
+########################### Fin del bucle del patrullaje ######################
+Cada vez que llega a un punto del patrullaje, deja una cura preventiva
+###############################################################################
+*/
+
+/*########################### Recarga de munición y sanación ######################
+Intenciones para recargar munición y sanación, se activan cuando el agente tiene poca vida o munición
+###############################################################################
+*/
+
++!reload_ammo : ammo_pack(Pos_ammo_pack)
+    <-
+    .print("Yendo a recargar munición");
     .goto(Pos_ammo_pack).
 
-+target_reached(Pos_san_pack): yendo_sanacion
+
++!reload_san : san_pack(Pos_san_pack)
+    <-
+    .print("Yendo a curarme al pack de la posición ", Pos_san_pack);
+    .goto(Pos_san_pack).
+
+/*
+########################### Reacción a los packs ######################
+Cuando ve un pack de sanación o munición, se dirige a él si tiene poca vida o munición respectivamente
+Si tiene suficiente vida o munición, guarda la posición del pack
+para ir a por él más tarde a traves de crear una intención con !reload_san o !reload_ammo
+###############################################################################
+*/
+
++packs_in_fov(_, TYPE_san_pack, _, _, _, Pos_san_pack) : TYPE_san_pack == 1001 & health(H) & H > 50 & not san_pack(Pos_san_pack)
+    <-
+    .print("Guardando posición del sanity pack ", Pos_san_pack);
+    +san_pack(Pos_san_pack).
+
+
++packs_in_fov(_, TYPE_ammo_pack, _, _, _, Pos_ammo_pack) :TYPE_ammo_pack == 1002 & ammo(M) & M > 50 & not ammo_pack(Pos_ammo_pack)
+    <-
+    .print("Guardando posición de la ammo pack ", Pos_ammo_pack);
+    +ammo_pack(Pos_ammo_pack).
+
+
+
+/*########################### Activar intenciones cuando vida baja o munición baja ######################
+################################################################################*/
+
++health(H):  H < 20 & not yendo_sanacion & san_pack(Pos_san_pack)
+    <-
+    .print("Vida baja, yendo a curarme");
+    +yendo_sanacion;
+    ?position(LastPos);
+    +posicion_anterior(LastPos);
+    .look_at(Pos_san_pack);
+    !reload_san.
+
+// si no hay pack de sanación, se crea una cura preventiva
++health(H): H < 20 & not yendo_sanacion & not san_pack(Pos_san_pack)
+    <-
+    .print("Vida baja, creando cura preventiva y volviendo al punto inicial");
+    .cure;
+    ?position(LastPos);
+    +posicion_anterior(LastPos);
+    .create_control_points(LastPos, 10, 2, BaseMidPointAll);
+    !do_patroll(BaseMidPointAll).
+
+
+
++ammo(M): M < 20 & not yendo_municion & ammo_pack(Pos_ammo_pack)
+    <-
+    .print("Munición baja, yendo a recargar munición");
+    +yendo_municion;
+    ?position(LastPos);
+    +posicion_anterior(LastPos);
+    .look_at(Pos_ammo_pack);
+    !reload_ammo.
+
+// si no hay pack de munición, se crea una cura preventiva
++ammo(M): M < 20 & not yendo_municion & not ammo_pack(Pos_ammo_pack)
+    <-
+    .print("Munición baja, creando cura preventiva y volviendo al punto inicial");
+    .cure;
+    ?position(LastPos);
+    +posicion_anterior(LastPos);
+    .create_control_points(LastPos, 10, 2, BaseMidPointAll);
+    !do_patroll(BaseMidPointAll).
+
+
+
+// Cuando llega a un pack de munición o sanación, lo recoge y vuelve a patrullar
+
++target_reached(Pos_san_pack): yendo_sanacion & posicion_anterior(LastPos)
     <-
     .print("Sanación cogida");
     -target_reached(Pos_san_pack);
-    -yendo_sanacion.
+    -yendo_sanacion;
+    .create_control_points(LastPos, 10, 3, BaseMidPointAll);
+    !do_patroll(BaseMidPointAll).
 
-+target_reached(Pos_ammo_pack): yendo_municion
++target_reached(Pos_ammo_pack): yendo_municion & posicion_anterior(LastPos)
     <-
     .print("Munición cogida");
     -target_reached(Pos_ammo_pack);
-    -yendo_municion.
+    -yendo_municion;
+    .create_control_points(LastPos, 10, 3, BaseMidPointAll);
+    !do_patroll(BaseMidPointAll).
+
+
+/* ########################### Reacción a los enemigos ######################
+Cuando ve un enemigo, se activa la intención de atacar o recargar munición
+o curarse dependiendo de la vida y munición del agente
+*/
 
 // Cuando ve a un enemigo y tiene suficiente vida
-+enemies_in_fov(ID_enemy,_,_,_,_,Position_enemy) : health(H) & H > 50 & not volviendo_a_base
++enemies_in_fov(ID_enemy,_,_,_,_,Position_enemy) : health(H) & H > 20 & ammo(M) & M > 5
     <-
     .shoot(5,Position_enemy);
     .print("Atacando al enemigo ", ID_enemy).
 
-// Cuando ve a un enemigo pero tiene poca vida
-+enemies_in_fov(_,_,_,_,_,_) : health(H) & H <= 50 & not volviendo_a_base
++enemies_in_fov(ID_enemy,_,_,_,_,Position_enemy) : health(H) & H > 20 & ammo(M) & M < 5
     <-
-    +volviendo_a_base;
-    ?midpoint(MidPoint);
-    !patroll_at_midpoint;
-    .print("Replegándome, vida baja").
+    ?ammo_pack(Pos_ammo_pack);
+    .look_at(Pos_ammo_pack);
+    +yendo_municion;
+    !reload_ammo;
+    .print("Yendo a recargar munición, a la posición", Pos_ammo_pack).
+
+// Cuando ve a un enemigo pero tiene poca vida
++enemies_in_fov(_,_,_,_,_,_) : health(H) & H <= 20
+    <-
+    ?san_pack(Pos_san_pack);
+    .look_at(Pos_san_pack);
+    +yendo_sanacion;
+    !reload_san;
+    .print("Yendo a curarme, a la posición", Pos_san_pack).
 
 
 // Cuando ve a un amigo herido
-+friends_in_fov(_,_,_,_,Health_ally,Position_ally) : Health_ally < 50 & not curando_ally
++friends_in_fov(_,_,_,_,Health_ally,Position_ally) : Health_ally > 20 & Health_ally < 100 & not curando_ally
     <-
-    -+curando_ally;
+    +curando_ally;
     .print("Yendo a curar a aliado a la posición", Position_ally);
     .goto(Position_ally).
     
@@ -138,64 +269,9 @@ Plan principal, Patrullar alrededor de una posición intermedia entre la base y 
     -target_reached(Position_ally);
     .cure;
     .print("Curando al aliado ");
-    .create_control_points(Position_ally, 10, 2, Position_ally_grouped); // Crear puntos cercanos a la base
+    .create_control_points(Position_ally, 10, 2, Position_ally_grouped); // Crear puntos cercanos al jugador
     !do_patroll(Position_ally_grouped).
 
-// Manejo de los puntos de patrulla
-+patroll_point(P): total_control_points(T) & P<T
-    <-
-    ?control_points(Pos);
-    .nth(P,Pos,A);
-    .print("Yendo al punto INDICADO COMO A ", A, "cON VALOR P de ", P , "y T de ", T);
-    .goto(A).
-
-+patroll_point(P): total_control_points(T) & P==T
-    <-
-    -+patroll_point(0);
-    -total_control_points(T);
-    .cure;
-    .print("Dejando cura preventiva");
-    .get_backups; // revisamos las creencias para ver si hay backups disponibles i modificar la estrategia
-    ?midpoint(MidPoint);
-    !patroll_at_midpoint.
-
-
-+target_reached(T_PATROLL): patrolling
-    <-
-    ?patroll_point(P);
-    -+patroll_point(P+1);
-    -target_reached(T_PATROLL);
-    !rotar;
-    .print("Punto alcanzado ", T_PATROLL).
-
-+health(H): H < 50 & not volviendo_a_base
-    <-
-    +volviendo_a_base;
-    .print("Volviendo a punto de patrullaje inicial a buscar curas, vida baja ...");
-    ?midpoint(MidPoint);
-    !patroll_at_midpoint.
-
-
-+health(H): H >= 50 & volviendo_a_base
-    <-
-    .print("A salvo, no hace falta patrullar en base");
-    -volviendo_a_base;
-    ?midpoint(MidPoint);
-    !patroll_at_midpoint.
-
-+target_reached(_) : volviendo_a_base
-    <-
-    .cure;
-    .print("Creando cura propia");
-    -target_reached(_);
-    -volviendo_a_base;
-    ?midpoint(MidPoint);
-    !patroll_at_midpoint.
-
-+!rotar <-
-    .print("Rotando...");
-    .turn(3.14);
-    .wait(550).
 
 
 // Si capturan la bandera i soy el equipo atacante, poner estrategia de defensa
@@ -203,7 +279,6 @@ Plan principal, Patrullar alrededor de una posición intermedia entre la base y 
     <-
     .print("Bandera capturada, volviendo a base");
     !set_base_random_points_patroll;
-    ?midpoint(MidPoint);
     !patroll_at_midpoint.
 
 
@@ -227,9 +302,7 @@ Plan principal, Patrullar alrededor de una posición intermedia entre la base y 
         !to_atack;
     }
     else {
-        .print("Hay backups disponibles, a por ellos!");
-        ?midpoint(MidPoint);
-
+        .print("Hay backups disponibles, a seguir patrullando!");
         !patroll_at_midpoint;
     }.
 
@@ -244,3 +317,4 @@ Plan principal, Patrullar alrededor de una posición intermedia entre la base y 
     .print("Bandera alcanzada, volviendo a base");
     ?base(B);
     .goto(B).
+
