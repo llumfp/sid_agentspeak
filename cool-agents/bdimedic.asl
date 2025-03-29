@@ -87,10 +87,7 @@ Position_ally = Posición del aliado
     !do_patroll(BaseMidPointAll).
 
 
-+!patroll_at_midpoint : midpoint(MidPoint)
-    <-
-    .create_control_points(MidPoint, 20, 3, BaseMidPointAll);
-    !do_patroll(BaseMidPointAll).
+
 
 
 /*
@@ -135,6 +132,11 @@ la base y la flag para poder explorar el mapa y observar posibles enemigos o ami
     -+patroll_point(P+1);
     -target_reached(A);
     .print("Punto alcanzado ", A).
+
++!patroll_at_midpoint : midpoint(MidPoint)
+    <-
+    .create_control_points(MidPoint, 20, 3, BaseMidPointAll);
+    !do_patroll(BaseMidPointAll).
 
 /*
 ########################### Fin del bucle del patrullaje ######################
@@ -196,6 +198,7 @@ para ir a por él más tarde a traves de crear una intención con !reload_san o 
     <-
     .print("Vida baja, creando cura preventiva y volviendo al punto inicial");
     .cure;
+    +san_pack(Pos_san_pack);
     ?position(LastPos);
     +posicion_anterior(LastPos);
     .create_control_points(LastPos, 10, 2, BaseMidPointAll);
