@@ -1,4 +1,39 @@
-// ====== ESTRATEGIA PARA MÉDICO EXTRA ======
+/*
+ * ========================================
+ * ESTRATEGIA DE AGENTE MÉDICO PARA PYGOMAS
+ * ========================================
+ * 
+ * Agente médico que proporciona soporte curativo al equipo y 
+ * participa en combate secundariamente según la situación táctica.
+ * 
+ * COMPORTAMIENTO GENERAL:
+ * - Prioriza la curación de aliados con salud crítica (<50)
+ * - Tiene comportamientos específicos según el equipo (Axis o Allied)
+ * - Mantiene distancia segura de enemigos cercanos
+ * - Dispara a enemigos cuando tiene suficiente munición
+ * - Busca packs de munición cuando sus reservas son bajas
+ * - Se cura a sí mismo cuando su salud es crítica
+ * 
+ * EQUIPO AXIS (DEFENSIVO):
+ * - Crea puntos de patrulla alrededor de la bandera
+ * - Patrulla sistemáticamente estos puntos dejando packs médicos
+ * - Protege el área de la bandera
+ * 
+ * EQUIPO ALLIED (OFENSIVO):
+ * - Va directamente a la bandera (punto estratégico donde estarán compañeros)
+ * - Se dirige a la base cuando se captura la bandera
+ * - Prioriza estar cerca del objetivo sobre seguir a soldados específicos
+ * 
+ * GESTIÓN DE RECURSOS:
+ * - Cura proactivamente cuando su salud es baja (<40)
+ * - Busca munición cuando está por debajo del 40%
+ * - Responde tácticamente a enemigos según distancia y salud
+ * 
+ * PATRONES DEFENSIVOS:
+ * - Retrocede y cambia dirección ante enemigos cercanos
+ * - Dispara a enemigos lejanos si tiene munición suficiente
+ * - Prioriza curación sobre combate
+ */
 
 // Umbral para considerar mala salud propia
 health_threshold(40).
@@ -21,6 +56,7 @@ health_threshold(40).
   .goto(Position).
 
 // === COMPORTAMIENTO DE EQUIPO ALLIED ===
+
 // EQUIPO ALLIED - OFENSIVO: Ir directamente a por la bandera, 
 // ya que es donde seguramente irán los compañeros
 +flag(F): team(100)
@@ -120,7 +156,7 @@ health_threshold(40).
 // Si tenemos poca vida, curarnos y buscar refugio
 +health(H): health_threshold(T) & H < T
   <-
-  .print("¡Salud critica! Curandome");
+  .print("Salud critica! Curandome");
   .cure;
   // Retirarse a una posicion segura temporalmente
   .turn(1.0);
