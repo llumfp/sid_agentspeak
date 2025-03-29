@@ -5,14 +5,45 @@
 h_t(50).
 a_t(50).
 
-!capture_flag.
+!capture_flag :- team(100).
+!patroll :- team(200).
 !explore.
 
-/* =================== META PRINCIPAL =================== */
+/* =================== META PRINCIPAL (AXIS) =================== */
+
+/* El soldado debe patrullar la bandera */
+
+!patroll(F) : team(200) <-
+  .create_control_points(F, 20, 4, C);
+  +control_points(C);
+  .length(C, L);
+  +total_control_points(L);
+  +patrolling;
+  +patrol_point(0).
+
+/* =================== PLANES PARA LA PATRULLA DE LA BANDERA (AXIS) =================== */
+
++patroll_point(P): total_control_points(T) & P<T
+  <-
+  ?control_points(C);
+  .nth(P,C,A);
+  .goto(A).
+
++patroll_point(P): total_control_points(T) & P==T
+  <-
+  -patroll_point(P);
+  !!patroll.
+
++target_reached(T): patrolling & team(200) <-
+  ?patroll_point(P);
+  -+patroll_point(P+1);
+  -target_reached(T).
+
+/* =================== META PRINCIPAL (ALLIED) =================== */
 
 /* El soldado debe capturar la bandera */
 
-+!capture_flag : not flag_taken <-
++!capture_flag : not flag_taken & team(100) <-
   .wait(1000);
   .print("Meta: capture_flag iniciada");
   ?health(H);
@@ -20,7 +51,7 @@ a_t(50).
   .print("Helth =", H, " Ammo =", A);
   !assess_flag.
 
-/* =================== PLANES PARA LA CAPTURA DE LA BANDERA =================== */
+/* =================== PLANES PARA LA CAPTURA DE LA BANDERA (ALLIED) =================== */
 
 +!assess_flag : flag(F) <-
   .print("Meta: assess_flag. Se conoce flag en: ", F);
@@ -64,6 +95,12 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
   .print("He llegado a la base en: ", B, ". Entregando bandera.");
   -returning;
   -target_reached(T).
+
+/*
+============================================================
+################### COMPORTAMIENTO COMUN ###################
+============================================================
+*/
 
 /* =================== REACCIÓN DE ATAQUE =================== */
 
