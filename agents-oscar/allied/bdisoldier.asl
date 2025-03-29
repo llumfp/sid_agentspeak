@@ -13,10 +13,11 @@
 /* El soldado debe capturar la bandera */
 
 +!capture_flag : true <-
+  .wait(1000);
   .print("Meta: capture_flag iniciada");
   ?health(H);
   ?ammo(A);
-  .print("Estado inicial: health=", H, " ammo=", A);
+  .print("Helth = ", H, " Ammo = ", A);
   !assess_flag.
 
 /* =================== PLANES PARA LA CAPTURA DE LA BANDERA =================== */
@@ -56,5 +57,33 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
 /* =================== REACCIÓN DE ATAQUE =================== */
 
 +enemies_in_fov(ID, TYPE, ANGLE, DIST, HEALTH, [X,Y,Z]) : true <-
-  .shoot(20,[X,Y,Z]).
+  .shoot(5,[X,Y,Z]).
 
+/* =================== MUNICIÓN =================== */
+
+// Buscar munición
++ammo(A) : A > 50 <- 
+  .wait(500);
+  .print("Tengo municion.").
+
+// Buscar cura
++health(H) : H > 50 <-
+  .wait(500);
+  .print("No me muero!").
+
+
+
+
+// Ver packs de munición cuando tenemos poca munición
++packs_in_fov(ID, 1002, Angle, Distance, Health, Position): ammo(A) & A <= 40 & not yendo_municion
+  <-
+  .print("Pack de municion detectado! Yendo a por el");
+  +yendo_municion;
+  .goto(Position).
+
+// Cuando llegamos al pack de munición
++target_reached(T): yendo_municion
+  <-
+  .print("He recargando balas, vamos a curar!");
+  -yendo_municion;
+  -target_reached(T).

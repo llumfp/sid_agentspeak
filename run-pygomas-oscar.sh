@@ -18,7 +18,7 @@ rm -rf ~/.cache/mesa_shader_cache_db
 rm -rf ~/.cache/fontconfig
 
 echo "Iniciando PyGOMAS Manager..."
-gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m map_04; exec bash" &
+gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m map_04 --fps 60; exec bash" &
 
 sleep 5
 
