@@ -2,22 +2,22 @@
 
 /* =================== CRENCIAS INICIALES =================== */
 
-+flag(F).
-+health(H).
-+ammo(A).
+h_t(50).
+a_t(50).
 
 !capture_flag.
+!explore.
 
 /* =================== META PRINCIPAL =================== */
 
 /* El soldado debe capturar la bandera */
 
-+!capture_flag : true <-
++!capture_flag : not flag_taken <-
   .wait(1000);
   .print("Meta: capture_flag iniciada");
   ?health(H);
   ?ammo(A);
-  .print("Helth = ", H, " Ammo = ", A);
+  .print("Helth =", H, " Ammo =", A);
   !assess_flag.
 
 /* =================== PLANES PARA LA CAPTURA DE LA BANDERA =================== */
@@ -28,7 +28,16 @@
 
 +!take_flag(F) : true <-
   .print("Meta: take_flag. Moviendose hacia la bandera en: ", F);
+  +to_flag;
   .goto(F).
+
++target_reached(T) : to_flag <-
+  .print("Bandera alcanzada.");
+  -to_flag;
+  -target_reached;
+  if (not flag_taken) {
+		!!capture_flag;
+	}.
 
 /* ----------------------------------------------------------------------
 
@@ -41,7 +50,8 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
 
 ---------------------------------------------------------------------- */
 
-+flag_taken : true <-
++flag_taken <-
+  // .wait(500);
   !bring_flag_home.
 
 +!bring_flag_home : base(B) & flag(F) <-
@@ -51,39 +61,76 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
   .goto(B).
 
 +target_reached(T) : returning <-
+  .print("He llegado a la base en: ", B, ". Entregando bandera.");
   -returning;
-  .print("He llegado a la base en: ", B, ". Entregando bandera.").
+  -target_reached(T).
 
 /* =================== REACCIÓN DE ATAQUE =================== */
 
 +enemies_in_fov(ID, TYPE, ANGLE, DIST, HEALTH, [X,Y,Z]) : true <-
-  .shoot(5,[X,Y,Z]).
+  .print("Shooting to:", ID, TYPE);
+  .shoot(10,[X,Y,Z]).
 
-/* =================== MUNICIÓN =================== */
+/* =================== MUNICIÓN Y SALUD =================== */
 
 // Buscar munición
-+ammo(A) : A > 50 <- 
-  .wait(500);
-  .print("Tengo municion.").
++ammo(A) : a_t(T) & A < T & not finding_ammo <- 
+  .print("No tengo suficiente municion.");
+  +finding_ammo;
+  !find_ammo.
 
 // Buscar cura
-+health(H) : H > 50 <-
-  .wait(500);
-  .print("No me muero!").
++health(H) : h_t(T) & H < T & not finding_health <-
+  .print("Necesito recuperar salud.");
+  +finding_health;
+  !find_health.
 
++!find_ammo : ammo_pack(P) <-
+  .print("Dirigiendome hacia la municion.");
+  +to_ammo;
+  .goto(P).
 
++!find_ammo <-
+  .print("No tengo constancia de ningun pack de municion.");
+  -finding_ammo;
+  !explore.
 
++!find_health : cure_pack(P) <-
+  .print("Dirigiendome hacia la cura.");
+  +to_cure;
+  .goto(P).
 
-// Ver packs de munición cuando tenemos poca munición
-+packs_in_fov(ID, 1002, Angle, Distance, Health, Position): ammo(A) & A <= 40 & not yendo_municion
-  <-
-  .print("Pack de municion detectado! Yendo a por el");
-  +yendo_municion;
-  .goto(Position).
++!find_health <-
+  .print("No tengo constancia de ningun pack de cura.");
+  -finding_health;
+  !explore.
 
-// Cuando llegamos al pack de munición
-+target_reached(T): yendo_municion
-  <-
-  .print("He recargando balas, vamos a curar!");
-  -yendo_municion;
++target_reached(T) : to_ammo <-
+  .print("Ammo cogida");
+  -to_ammo;
+  -finding_ammo;
   -target_reached(T).
+
++target_reached(T) : to_cure <-
+  .print("Cura cogida");
+  -to_cure;
+  -finding_health;
+  -target_reached(T).
+
++packs_in_fov(_, TYPE, _, _, _, POSITION) : TYPE == 1001 & not cure_pack(POSITION)
+    <-
+    .print("He detectado un CURE pack distinto en ", POSITION);
+    +cure_pack(POSITION).
+
++packs_in_fov(_, TYPE, _, _, _, POSITION) :TYPE == 1002 & not ammo_pack(POSITION)
+    <-
+    .print("He detectado un AMMO pack distinto en ", POSITION);
+    +ammo_pack(POSITION).
+
+/* =================== EXPLORAR =================== */
+
++!explore : true <-
+  // .print("Explorando...");
+  .turn(1.571); // Girar pi/2 (90º)
+  .wait(100);
+  !!explore.

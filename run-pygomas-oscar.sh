@@ -18,14 +18,14 @@ rm -rf ~/.cache/mesa_shader_cache_db
 rm -rf ~/.cache/fontconfig
 
 echo "Iniciando PyGOMAS Manager..."
-gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m map_04 --fps 60; exec bash" &
+gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m map_01 --fps 10; exec bash" &
 
-sleep 5
+sleep 7.5
 
 echo "Iniciando PyGOMAS Render..."
 gnome-terminal -- bash -ic "pyenv activate sid; pygomas render ; exec bash" &
 
-sleep 1
+sleep 2
 
 echo "Iniciando agentes PyGOMAS..."
 gnome-terminal -- bash -ic "pyenv activate sid; cd $AGENTS_DIR && pygomas run -g $CONFIG_FILE; exec bash" &
