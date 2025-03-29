@@ -40,7 +40,7 @@ Position_ally = Posición del aliado
 
 
 
-+!set_base_random_points_patroll 
++!set_base_random_points_patroll : team(200)
     <-
     ?flag(F);
     ?base(B);
@@ -57,6 +57,29 @@ Position_ally = Posición del aliado
     MidX = (FX + BX) / 2;
     MidY = (FY + BY) / 2;
     MidZ = (FZ + BZ) / 2;
+    
+    MidPoint = [MidX, MidY, MidZ];
+    +midpoint(MidPoint);
+    .create_control_points(MidPoint, 20, 3, BaseMidPointAll);
+    !do_patroll(BaseMidPointAll).
+
++!set_base_random_points_patroll : team(100)
+    <-
+    ?flag(F);
+    ?base(B);
+    
+    // Manual midpoint calculation
+    .nth(0, F, FX);
+    .nth(1, F, FY);
+    .nth(2, F, FZ);
+    
+    .nth(0, B, BX);
+    .nth(1, B, BY);
+    .nth(2, B, BZ);
+    
+    MidX = (FX + BX) * 3 / 4;
+    MidY = (FY + BY) * 3 / 4;
+    MidZ = (FZ + BZ) * 3 / 4;
     
     MidPoint = [MidX, MidY, MidZ];
     +midpoint(MidPoint);
@@ -87,38 +110,31 @@ la base y la flag para poder explorar el mapa y observar posibles enemigos o ami
     .print("Iniciando patrulla cerca de los puntos", Pos).
 
 // Manejo de los puntos de patrulla
-+patroll_point(P): total_control_points(L) & P<L & control_points(Pos)
++patroll_point(P): total_control_points(L) & P<L & control_points(Pos) & patrolling
     <-
     .nth(P,Pos,A);
     .print("Yendo al punto", A, "(", P, " de ", L, ")");
     .goto(A).
 
-+patroll_point(P): total_control_points(T) & P==T
++patroll_point(P): total_control_points(T) & P==T & patrolling
     <-
     -+patroll_point(0);
     -total_control_points(T);
-    .get_backups;
-    !patroll_at_midpoint.
+    .print("Patrullaje terminado, volviendo a patrullar");
+    !!patroll_at_midpoint.
 
-+target_reached(A): patrolling & patroll_point(P) & total_control_points(L) & P + 1 <= L
++target_reached(A): patrolling & patroll_point(P) & total_control_points(L) & P + 1 <= L & patrolling
     <-
     +san_pack(A);
     .cure;
     .print("Dejando cura preventiva y guardando su ubicación en", A);
+    .get_backups;
+    .wait(550);
+    .print("Revisando si hay soldados en la zona");
     ?patroll_point(P);
     -+patroll_point(P+1);
     -target_reached(A);
     .print("Punto alcanzado ", A).
-
-+target_reached(A): patrolling & patroll_point(P) & total_control_points(L) & P + 1 > L
-    <-
-    -patrol_point(P);
-    -total_control_points(L);
-    -target_reached(A);
-    -patrolling;
-    .get_backups;
-    .print("Patrullaje terminado, empezando un nuevo patrullaje");
-    !patroll_at_midpoint.
 
 /*
 ########################### Fin del bucle del patrullaje ######################
@@ -166,17 +182,17 @@ para ir a por él más tarde a traves de crear una intención con !reload_san o 
 /*########################### Activar intenciones cuando vida baja o munición baja ######################
 ################################################################################*/
 
-+health(H):  H < 20 & not yendo_sanacion & san_pack(Pos_san_pack)
++health(H):  H < 20 & not yendo_sanacion & san_pack(Pos_san_pack) & not al_ataque
     <-
     .print("Vida baja, yendo a curarme");
     +yendo_sanacion;
     ?position(LastPos);
     +posicion_anterior(LastPos);
     .look_at(Pos_san_pack);
-    !reload_san.
+    !!reload_san.
 
 // si no hay pack de sanación, se crea una cura preventiva
-+health(H): H < 20 & not yendo_sanacion & not san_pack(Pos_san_pack)
++health(H): H < 20 & not yendo_sanacion & not san_pack(Pos_san_pack) & not al_ataque
     <-
     .print("Vida baja, creando cura preventiva y volviendo al punto inicial");
     .cure;
@@ -187,17 +203,17 @@ para ir a por él más tarde a traves de crear una intención con !reload_san o 
 
 
 
-+ammo(M): M < 20 & not yendo_municion & ammo_pack(Pos_ammo_pack)
++ammo(M): M < 20 & not yendo_municion & ammo_pack(Pos_ammo_pack) & not al_ataque
     <-
     .print("Munición baja, yendo a recargar munición");
     +yendo_municion;
     ?position(LastPos);
     +posicion_anterior(LastPos);
     .look_at(Pos_ammo_pack);
-    !reload_ammo.
+    !!reload_ammo.
 
 // si no hay pack de munición, se crea una cura preventiva
-+ammo(M): M < 20 & not yendo_municion & not ammo_pack(Pos_ammo_pack)
++ammo(M): M < 20 & not yendo_municion & not ammo_pack(Pos_ammo_pack) & not al_ataque
     <-
     .print("Munición baja, creando cura preventiva y volviendo al punto inicial");
     .cure;
@@ -238,18 +254,16 @@ o curarse dependiendo de la vida y munición del agente
     .shoot(5,Position_enemy);
     .print("Atacando al enemigo ", ID_enemy).
 
-+enemies_in_fov(ID_enemy,_,_,_,_,Position_enemy) : health(H) & H > 20 & ammo(M) & M < 5
++enemies_in_fov(ID_enemy,_,_,_,_,Position_enemy) : health(H) & H > 20 & ammo(M) & M < 5 & ammo_pack(Pos_ammo_pack)
     <-
-    ?ammo_pack(Pos_ammo_pack);
     .look_at(Pos_ammo_pack);
     +yendo_municion;
     !reload_ammo;
     .print("Yendo a recargar munición, a la posición", Pos_ammo_pack).
 
 // Cuando ve a un enemigo pero tiene poca vida
-+enemies_in_fov(_,_,_,_,_,_) : health(H) & H <= 20
++enemies_in_fov(_,_,_,_,_,_) : health(H) & H <= 20 & san_pack(Pos_san_pack)
     <-
-    ?san_pack(Pos_san_pack);
     .look_at(Pos_san_pack);
     +yendo_sanacion;
     !reload_san;
@@ -273,48 +287,89 @@ o curarse dependiendo de la vida y munición del agente
     !do_patroll(Position_ally_grouped).
 
 
+/*########################### Replanificación si no hay soldados ######################
 
-// Si capturan la bandera i soy el equipo atacante, poner estrategia de defensa
-+flag_taken: team(100)
+Para el equipo 100, si hay soldados en la zona, se vuelve a patrullar
+y se crea una cura preventiva en la posición del último punto de patrullaje.
+Si no hay soldados, se activa estrategia de ataque y se va a por la bandera
+
+Para el equipo 200, si hay soldados en la zona, se vuelve a patrullar
+y se crea una cura preventiva en la posición del último punto de patrullaje.
+Si no hay soldados, se activa estrategia de defensa y se va a patrullar por la bandera
+
+################################################################################*/
+
+
++myBackups(LISTBACKUPS) : not flag_taken & team(100)
     <-
-    .print("Bandera capturada, volviendo a base");
-    !set_base_random_points_patroll;
-    !patroll_at_midpoint.
+    .print("Recibiendo lista de backups");
+    .print(LISTBACKUPS);
+    .length(LISTBACKUPS, LENGTHBACKUPS);
+    -patrolling;
+    if (LENGTHBACKUPS == 0) {
+        .print("No hay backups disponibles, a por la bandera!");
+        +al_ataque;
+        -myBackups(LISTBACKUPS);
+        !to_atack;
+    }
+    else {
+        .print("Hay backups disponibles, a seguir patrullando!");
+        -myBackups(LISTBACKUPS);
+        +patrolling;
+    }.
 
-
-// Si capturan la bandera i soy el equipo defensor, poner estrategia de ataque
-+flag_taken: team(200)
++myBackups(LISTBACKUPS) : flag_taken & team(100)
     <-
-    .print("Bandera capturada, atacando al portador");
-    ?flag(F);
-    .create_control_points(F, 20, 2, FlagPoint); // Crear puntos cercanos a la bandera
-    !do_patroll(FlagPoint).
+    .print("Recibiendo lista de backups");
+    .print(LISTBACKUPS);
+    .length(LISTBACKUPS, LENGTHBACKUPS);
+    -patrolling;
+    !save_flag;
+    .print("Guardando bandera en la base!");
+    -myBackups(LISTBACKUPS).
 
 
-
-+myBackups(LISTBACKUPS) : team(100)
++myBackups(LISTBACKUPS) : team(200)
     <-
     .print("Recibiendo lista de backups");
     .print(LISTBACKUPS);
     .length(LISTBACKUPS, LENGTHBACKUPS);
     if (LENGTHBACKUPS == 0) {
-        .print("No hay backups disponibles, a por la bandera!");
-        !to_atack;
+        .print("No hay backups disponibles, a defender la bandera!");
+        +a_defender;
+        -myBackups(LISTBACKUPS);
+        !to_defend;
     }
     else {
         .print("Hay backups disponibles, a seguir patrullando!");
-        !patroll_at_midpoint;
+        -myBackups(LISTBACKUPS);
+        +patrolling;
     }.
 
 
-+!to_atack : team(100)
++!to_atack
     <-
     ?flag(F);
     .goto(F).
 
-+target_reached(F) : team(100)
++!to_defend : flag(F) & team(200)
+    <-
+    .create_control_points(F, 10, 2, F_points);
+    !do_patroll(F_points);
+    .print("Defendiendo la bandera en", F_points).
+
+
++target_reached(F) : al_ataque
     <-
     .print("Bandera alcanzada, volviendo a base");
+    -al_ataque;
+    !save_flag.
+
+
+// plan para guardar la bandera en la base
++!save_flag : team(100) & flag_taken
+    <-
     ?base(B);
+    .print("Guardando bandera en la base");
     .goto(B).
 

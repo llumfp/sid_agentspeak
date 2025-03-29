@@ -4,7 +4,7 @@ setlocal
 :: Variables específicas para JAVI22
 set "MANAGER_JID=cmanager-javi@JAVI22.mshome.net"
 set "SERVICE_JID=cservice-javi@JAVI22.mshome.net"
-set "NUM_PLAYERS=6"
+set "NUM_PLAYERS=4"
 set "AGENTS_DIR=./cool-agents"
 set "CONFIG_FILE=ejemplo_local.json"
 
