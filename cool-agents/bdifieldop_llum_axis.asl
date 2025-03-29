@@ -1,20 +1,14 @@
 //TEAM_AXIS
 
 /*
-########################## Lista de variables ######################
-F = Flag
-C = Puntos de control cercanos a la bandera
-*/
-
-/*
 ########################## URGENCIA MEDICA! ########################
 Buscar medicinas.
--> EMPIEZA: cuando tenemos una vida inferior a 20
+-> EMPIEZA: cuando tenemos una vida inferior a 50
 -> ACABA: cuando hemos recuperado vida
--> QUE HACE: dar una vuelta en busca de medicinas o en busca del médico amigo
+-> QUE HACE: dar una vuelta en busca de medicinas e ir hacia la medicina encontrada
 */
 
-+health(H): H<20
++health(Hnow): Hnow<50
   <-
   .reload;
   !cure_myself.
@@ -23,8 +17,9 @@ Buscar medicinas.
   <-
   +searching_cures.
 
-+packs_in_fov(_, MedicPack, _, _, _, MedicinePos): searching_cures & MedicPack=1001
++packs_in_fov(_, MedicPack, _, _, _, MedicinePos): searching_cures & MedicPack=1001 & not going_to_cure
   <-
+  .print("He visto una cura, me dirijo hacia ella");
   +going_to_cure;
   .goto(MedicinePos).
 
@@ -34,14 +29,19 @@ Buscar medicinas.
   .wait(1000);
   .turn(-0.750).
 
-+pack_taken(MedicPack): searching_cures & MedicPack=1001
++pack_taken(MedicPack,_): searching_cures & MedicPack=medic
   <-
+  .print("Medicina tomada");
   -going_to_cure;
   -searching_cures;
-  .reload.
+  ?flag(F);
+  .goto(F);
+  !protect_flag.
 
 +target_reached(MedicinePos): searching_cures
   <-
+  .print("He llegado donde estaba la medicina");
+  -target_reached(MedicinePos);
   -going_to_cure.
 
 /*
@@ -52,6 +52,19 @@ Empezamos yendo a patrullar al rededor de la bandera.
 -> QUE HACE: crear puntos al rededor de la bandera y patrullar siguiendo estos puntos
 */
 
+// Inicialización de la variable para detectar que me están disparando
+!first_health.
+
++!first_health: health(H)
+  <-
+  .print("La salud inicial es de", H);
+  +last_health(H).
+
++!first_health
+  <-
+  .print("Esperando información de la salud.");
+  .wait(1000);  // Esperar un poco antes de intentarlo de nuevo
+  !first_health.  // Llamada recursiva para intentarlo de nuevo
 
 !go_patroll_flag.
 
@@ -97,23 +110,24 @@ Empezamos yendo a patrullar al rededor de la bandera.
   .print("Empezamos FASE 2: primer enemigo visto en ", PositionFirstEnemie);
   -patroll_point(P);
   -patrolling;
+  .stop;
   .shoot(5,PositionFirstEnemie);
   .print("Disparado");
   +firstSeen(PositionFirstEnemie);
   !protect_flag.
 
 // Otra forma de empezar la FASE 2, cuando notamos que nos estan disparando
-+health(Hcurrent): patrolling
++health(Hcurrent): patrolling & last_health(H)
   <- 
-  .wait(10000);
-  ?heath(Hnew);
-  if (Hcurrent-Hnew < 5) {
+  .wait(1000);
+  if (H-Hcurrent < 5) {
       .print("Me están disparando. FASE 2");
       -patrolling;
+      .stop;
       !protect_flag;
   }
   else {
-      .print("Nadie me esta disparando");
+      .print("Nadie me esta disparando. Sigo patrullando.");
   }.
 
 /*
@@ -123,11 +137,14 @@ Dejar munición cuando veo a un amigo, a partir de la fase 2.
 -> ACABA: nunca
 -> QUE HACE: dejar munición siempre que veamos un amigo, esperando un tiempo por si se repite
 */
-+friends_in_fov(_,_,_,_,_,_): not patrolling & not searching_cures
++friends_in_fov(_,_,_,_,_,_): not searching_cures & not recargado & protecting
   <-
   .print("Voy a dejar muncion porque vi un amigo");
-  .wait(100000);
-  .reload.
+  .reload;
+  +recargado;
+  .wait(10000);
+  .print("Ahora puedo volver a dar municion");
+  -recargado.
 
 /*
 ########################## FALTA MUNICION! ########################
@@ -148,8 +165,9 @@ Poner municion y cogerla.
   <-
   +searching_ammo.
 
-+packs_in_fov(_, AmmoPack, _, _, _, AmmoPos): searching_ammo & AmmoPack=1002
++packs_in_fov(_, AmmoPack, _, _, _, AmmoPos): searching_ammo & AmmoPack=1002 & not going_to_ammo
   <-
+  .print("Yendo hacia la municion vista");
   +going_to_ammo;
   .goto(AmmoPos).
 
@@ -160,11 +178,21 @@ Poner municion y cogerla.
   .reload;
   .turn(-0.750).
 
-+pack_taken(AmmoPack): searching_ammo & AmmoPack=1002
++pack_taken(AmmoPack,_): searching_ammo & AmmoPack=fieldops
   <-
   .print("He encontrado la municion buscada");
   -going_to_ammo;
   -searching_ammo;
+  ?flag(F);
+  .goto(F);
+  !protect_flag;
+  .reload.
+
++target_reached(AmmoPos): searching_ammo & going_to_ammo
+  <-
+  .print("He encontrado llegado donde estaba la municion pero no la he tomado");
+  -going_to_ammo;
+  +searching_ammo;
   .reload.
 
 /*
@@ -189,18 +217,19 @@ Empezamos a proteger la bandera.
 
 +enemies_in_fov(ID,Type,Angle,Distance,Health,Position): protecting & firstSeen(PositionFirstEnemie)
   <- 
+  -going_to_position_enemie;
   -looking_for_enemies;
   -searching_enemies(P);
   .print("Disparado");
   .shoot(5,Position).
 
-+protecting: not enemies_in_fov(_,_,_,_,_,_) & flag(F) & not looking_for_enemies
++protecting: not enemies_in_fov(_,_,_,_,_,_) & flag(F) & not looking_for_enemies & not searching_cures
   <-
+  .print("Estoy mirando hacia la bandera para ver si puedo encontrar a los enemigos");
   .look_at(F);
-  +looking_for_enemies;
-  searching_enemies(0).
+  +searching_enemies(0).
 
-+looking_for_enemies: searching_enemies(P) & P<5
++looking_for_enemies: protecting & searching_enemies(P) & P<5 & not searching_cures
   <-
   -+searching_enemies(P+1);
   .print("Buscando enemigos");
@@ -208,14 +237,67 @@ Empezamos a proteger la bandera.
   .reload;
   .turn(-0.750).
 
-+looking_for_enemies: searching_enemies(P) & P>4 & firstSeen(PositionFirstEnemie)
++looking_for_enemies: protecting & searching_enemies(P) & P>4 & firstSeen(PositionFirstEnemie) & not searching_cures
   <-
   .print("Yendo a la posicion donde vimos el primer enemigo: ", PositionFirstEnemie);
+  +going_to_position_enemie;
   .goto(PositionFirstEnemie).
 
-+target_reached(PositionFirstEnemie)
++target_reached(PositionFirstEnemie): protecting & going_to_position_enemie & not searching_cures
   <-
+  -going_to_position_enemie;
   .print("He llegado a la posicion donde estaba el primer enemigo");
   .reload;
   +searching_enemies(0).
+
+
+/*
+########################## FASE 3 ########################
+Empezamos a perseguir al enemigo que cogió la bandera.
+-> EMPIEZA: cuando vemos a un enemigo con la bandera
+-> ACABA: hasta el final
+-> QUE HACE: perseguir y atacar al enemigo
+No lo pilla nunca, no estoy segura si así se puede encontrar el enemigo que ha cogido la bandera...
+*/
+
++packs_in_fov(_, FlagType, _, _, _, FlagPos): enemies_in_fov(ID,Type,Angle,Distance,Health,Position) & FlagPos=Position
+  <- 
+  .print("He visto al enemigo con la bandera!");
+  !follow_enemie(ID).
+
++!follow_enemie(ID): not chasing_flag_carrier
+  <-
+  .print("Persiguiendo al enemigo con ID ", ID, " que tiene la bandera");
+  +chasing_flag_carrier;
+  +target_enemy(ID);
+  .reload.
+
++enemies_in_fov(ID,Type,Angle,Distance,Health,Position): chasing_flag_carrier & target_enemy(ID) & not following_enemy
+  <- 
+  .print("El enemigo con la bandera sigue a la vista, actualizando posición");
+  .shoot(5,Position);
+  -searching_enemy_flag;
+  .goto(Position);
+  +following_enemy.
+
++target_reached(Position): following_enemy & chasing_flag_carrier
+  <-
+  -target_reached(Position);
+  .print("He llegado a donde estaba el enemigo");
+  .reload;
+  -following_enemy.
+
++chasing_flag_carrier: not enemies_in_fov(ID,_,_,_,_,_) & target_enemy(ID) & not searching_enemy_flag
+  <-
+  .print("He perdido de vista al enemigo con la bandera, buscando");
+  +searching_enemy_flag;
+  .turn(-0.750).
+
++searching_enemy_flag: chasing_flag_carrier
+  <-
+  .print("Buscando al enemigo con la bandera");
+  .wait(1000);
+  .turn(0.750).
+
+
 
