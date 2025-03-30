@@ -1,10 +1,14 @@
 #!/bin/bash
 
-MANAGER_JID=${MANAGER_JID:-"cmanager-gia@sidfib.mooo.com"}
-SERVICE_JID=${SERVICE_JID:-"cservice-gia@sidfib.mooo.com"}
+# Manager JID settings
+MANAGER_JID=${MANAGER_JID:-"{MANAGER_NAME}"}
+SERVICE_JID=${SERVICE_JID:-"{SERVICE_NAME}"}
 NUM_PLAYERS=${NUM_PLAYERS:-6}
-AGENTS_DIR=${AGENTS_DIR:-"/home/oscar/sid/sid_agentspeak/agents-oscar"}
-CONFIG_FILE=${CONFIG_FILE:-"/home/oscar/sid/sid_agentspeak/agents-oscar/config.json"}
+
+PROJECT_DIR="~/sid_agentspeak"
+AGENTS_DIR="${PROJECT_DIR}/cool-agents"
+VENV_PATH="${PROJECT_DIR}/venv/bin/activate"
+CONFIG_FILE="${AGENTS_DIR}/ejemplo.json"
 
 if [ -f pygomas_stats.txt ]; then
     rm pygomas_stats.txt

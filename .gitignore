@@ -6,6 +6,12 @@
 /base-agents
 objectives.md
 cool-agents/ejemplo_*
+exec-scripts/run-pygomas-llum.bat
+exec-scripts/run-pygomas-simple.bat
+exec-scripts/run-pygomas-uni.bat
+exec-scripts/run-pygomas-simple.sh
+exec-scripts/run-pygomas-Julia.sh
+exec-scripts/run-pygomas-oscar.sh
 
 # Stats
 ./pygomas_stats.txt

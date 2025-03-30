@@ -1,12 +1,12 @@
 @echo off
 setlocal
 
-:: Variables específicas para JAVI22
-set "MANAGER_JID=cmanager-gia@sidfib.mooo.com"
-set "SERVICE_JID=cservice-gia@sidfib.mooo.com"
+:: Variables específicas para USER
+set "MANAGER_JID={MANAGER_NAME}"
+set "SERVICE_JID={SERVICE_NAME}"
 set "NUM_PLAYERS=6"
-set "AGENTS_DIR=./cool-agents"
-set "CONFIG_FILE=ejemplo_llum.json"
+set "AGENTS_DIR=../cool-agents"
+set "CONFIG_FILE=../cool-agents/ejemplo.json"
 
 :: Iniciar el manager en una nueva ventana de cmd
 echo Iniciando PyGOMAS Manager...

@@ -4,11 +4,11 @@
 PROJECT_DIR="~/sid_agentspeak"
 AGENTS_DIR="${PROJECT_DIR}/cool-agents"
 VENV_PATH="${PROJECT_DIR}/venv/bin/activate"
-CONFIG_FILE="${AGENTS_DIR}/ejemplo_julia.json"
+CONFIG_FILE="${AGENTS_DIR}/ejemplo.json"
 
 # Manager JID settings
-MANAGER_JID=${MANAGER_JID:-"cmanager-gia2@sidfib.mooo.com"}
-SERVICE_JID=${SERVICE_JID:-"cservice-gia2@sidfib.mooo.com"}
+MANAGER_JID=${MANAGER_JID:-"{MANAGER_NAME}"}
+SERVICE_JID=${SERVICE_JID:-"{SERVICE_NAME}"}
 NUM_PLAYERS=${NUM_PLAYERS:-6}
 
 if [ -f pygomas_stats.txt ]; then
