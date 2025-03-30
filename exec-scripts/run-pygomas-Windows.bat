@@ -1,19 +1,20 @@
 @echo off
 setlocal
 
-:: Variables específicas para JAVI22
-set "MANAGER_JID=cmanager-javi@JAVI22.mshome.net"
-set "SERVICE_JID=cservice-javi@JAVI22.mshome.net"
+:: Variables específicas para USER
+set "MANAGER_JID={MANAGER_NAME}"
+set "SERVICE_JID={SERVICE_NAME}"
 set "NUM_PLAYERS=6"
-set "AGENTS_DIR=./cool-agents"
-set "CONFIG_FILE=ejemplo_local.json"
+set "AGENTS_DIR=../cool-agents"
+set "CONFIG_FILE=../cool-agents/ejemplo.json"
 
 :: Iniciar el manager en una nueva ventana de cmd
 echo Iniciando PyGOMAS Manager...
-start cmd /k "pygomas manager -j %MANAGER_JID% -sj %SERVICE_JID% -np %NUM_PLAYERS% -m map_03"
+start cmd /k "pygomas manager -j %MANAGER_JID% -sj %SERVICE_JID% -np %NUM_PLAYERS% --fps 120" 
+:: -m mine Para tener un mini mapa
 
 :: Esperar 5 segundos para inicialización del manager
-timeout /t 2 /nobreak >nul
+timeout /t 5 /nobreak >nul
 
 :: Iniciar el render en otra ventana
 echo Iniciando PyGOMAS Render...
