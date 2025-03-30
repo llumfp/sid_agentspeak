@@ -3,6 +3,7 @@
 /pygomas
 .DS_Store
 /agents-oscar
+/base-agents
 .objectives.md
 cool-agents/ejemplo_*
 
