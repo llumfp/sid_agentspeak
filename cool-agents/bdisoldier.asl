@@ -1,5 +1,5 @@
 /*
-* ==========================================
+ * =========================================
  * ESTRATEGIA DE AGENTE SOLDADO PARA PYGOMAS
  * =========================================
  * Agente Deliberativo – Ambos Equipos 
