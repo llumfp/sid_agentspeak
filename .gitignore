@@ -2,9 +2,12 @@
 /venv
 /pygomas
 .DS_Store
+/agents-oscar
+.objectives.md
+.cool-agents/ejemplo_*
+
 # Stats
 ./pygomas_stats.txt
-
 ./run-pygomas-portatil.bat
 ./run-pygomas-simple.sh
 ./run-pygomas-uni.bat
