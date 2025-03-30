@@ -14,13 +14,6 @@ if [ -f pygomas_stats.txt ]; then
     rm pygomas_stats.txt
 fi
 
-rm -rf ~/.cache/qtshadercache-x86_64-little_endian-lp64
-rm -rf ~/.cache/matplotlib
-rm -rf ~/.cache/pip
-rm -rf ~/.cache/mesa_shader_cache
-rm -rf ~/.cache/mesa_shader_cache_db
-rm -rf ~/.cache/fontconfig
-
 echo "Iniciando PyGOMAS Manager..."
 gnome-terminal -- bash -ic "pyenv activate sid; pygomas manager -j $MANAGER_JID -sj $SERVICE_JID -np $NUM_PLAYERS -m map_01 --fps 10; exec bash" &
 
