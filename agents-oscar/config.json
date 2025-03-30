@@ -7,7 +7,7 @@
             "rank": "BDISoldier",
             "name": "bdi_soldier_1",
             "password": "patata",
-            "asl": "axis/bdisoldier.asl",
+            "asl": "bdisoldier.asl",
             "amount": 1
         },
         {
@@ -30,7 +30,7 @@
             "rank": "BDISoldier",
             "name": "bdi_soldier_2",
             "password": "patata",
-            "asl": "allied/bdisoldier.asl",
+            "asl": "bdisoldier.asl",
             "amount": 1
         },
         {
