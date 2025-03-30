@@ -4,13 +4,13 @@ setlocal
 :: Variables específicas para JAVI22
 set "MANAGER_JID=cmanager-javi@JAVI22.mshome.net"
 set "SERVICE_JID=cservice-javi@JAVI22.mshome.net"
-set "NUM_PLAYERS=4"
+set "NUM_PLAYERS=6"
 set "AGENTS_DIR=./cool-agents"
 set "CONFIG_FILE=ejemplo_local.json"
 
 :: Iniciar el manager en una nueva ventana de cmd
 echo Iniciando PyGOMAS Manager...
-start cmd /k "pygomas manager -j %MANAGER_JID% -sj %SERVICE_JID% -np %NUM_PLAYERS%"
+start cmd /k "pygomas manager -j %MANAGER_JID% -sj %SERVICE_JID% -np %NUM_PLAYERS% -m map_03"
 
 :: Esperar 5 segundos para inicialización del manager
 timeout /t 2 /nobreak >nul

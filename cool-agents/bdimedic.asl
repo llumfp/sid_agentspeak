@@ -278,7 +278,7 @@ o curarse dependiendo de la vida y munición del agente
 
 
 // Cuando ve a un amigo herido
-+friends_in_fov(_,_,_,_,Health_ally,Position_ally) : Health_ally > 20 & Health_ally < 100 & not curando_ally
++friends_in_fov(_,_,_,_,Health_ally,Position_ally) :  Health_ally < 80 & not curando_ally
     <-
     +curando_ally;
     .print("Yendo a curar a aliado a la posición", Position_ally);
