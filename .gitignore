@@ -4,7 +4,7 @@
 .DS_Store
 /agents-oscar
 .objectives.md
-.cool-agents/ejemplo_*
+cool-agents/ejemplo_*
 
 # Stats
 ./pygomas_stats.txt
