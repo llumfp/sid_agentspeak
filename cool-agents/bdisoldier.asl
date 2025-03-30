@@ -1,42 +1,49 @@
-/* Agente Soldado Deliberativo – Equipo ALLIED */
+/* Agente Soldado Deliberativo – Ambos Equipos */
 
 /* =================== CRENCIAS INICIALES =================== */
 
 h_t(50).
 a_t(50).
 
-!capture_flag :- team(100).
-!patroll :- team(200).
-!explore.
+wait(1000).
+
++flag(F) : team(200) <-
+  !patroll;
+  !explore.
+
++flag(F) : team(100) <- 
+  !capture_flag;
+  !explore.
 
 /* =================== META PRINCIPAL (AXIS) =================== */
 
 /* El soldado debe patrullar la bandera */
 
-!patroll(F) : team(200) <-
++!patroll : flag(F) <-
   .create_control_points(F, 20, 4, C);
   +control_points(C);
   .length(C, L);
   +total_control_points(L);
   +patrolling;
-  +patrol_point(0).
+  +patrol_point(0);
+  !to_point.
 
 /* =================== PLANES PARA LA PATRULLA DE LA BANDERA (AXIS) =================== */
 
-+patroll_point(P): total_control_points(T) & P<T
-  <-
++!to_point : patrol_point(P) <-
   ?control_points(C);
   .nth(P,C,A);
+  .print("Going to", A);
   .goto(A).
 
-+patroll_point(P): total_control_points(T) & P==T
-  <-
-  -patroll_point(P);
-  !!patroll.
-
-+target_reached(T): patrolling & team(200) <-
++target_reached(T): patrolling & total_control_points(TOTAL) <-
   ?patroll_point(P);
-  -+patroll_point(P+1);
+  if (P == TOTAL) {
+		!!patroll;
+	};
+  if (P <= TOTAL) {
+		-+patroll_point(P+1);
+	};
   -target_reached(T).
 
 /* =================== META PRINCIPAL (ALLIED) =================== */
@@ -166,7 +173,7 @@ Ahora pues tocará diseñar qué hace en caso de no coger la bandera.
 
 /* =================== EXPLORAR =================== */
 
-+!explore : true <-
++!explore <-
   // .print("Explorando...");
   .turn(1.571); // Girar pi/2 (90º)
   .wait(100);
