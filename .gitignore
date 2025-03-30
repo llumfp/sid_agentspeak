@@ -18,3 +18,5 @@ exec-scripts/run-pygomas-oscar.sh
 ./run-pygomas-portatil.bat
 ./run-pygomas-simple.sh
 ./run-pygomas-uni.bat
+./run-pygomas-oscar.sh
+./run-pygomas-llum.sh
