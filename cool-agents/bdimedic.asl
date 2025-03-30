@@ -1,7 +1,11 @@
-
+/*
+* ========================================
+ * ESTRATEGIA DE AGENTE MÉDICO PARA PYGOMAS
+ * ========================================
+ * 
 //BasePoints(base_points) :- team(200) & base_points = [160, 0, 180].
 //BasePoints(base_points) :- team(100) & base_points = [20, 0, 80].
-
+*/
 /*
 ########################## Lista de variables ######################
 F = Flag

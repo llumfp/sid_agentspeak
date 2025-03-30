@@ -1,45 +1,46 @@
 {
-    "host": "[HOST_server]",
-    "manager": "[MANAGER_name]",
-    "service": "[SERVICE_name]",
+    "host": "sidfib.mooo.com",
+    "manager": "cmanager-gia2",
+    "service": "cservice-gia2",
     "axis": [
         {
             "rank": "BDISoldier",
             "name": "bdi_soldier_1",
-            "password": "[PASSWORD]",
+            "password": "patata",
             "asl": "bdisoldier.asl"
         },
         {
             "rank": "BDIMedic",
-            "name": "bdi_medic_1",
+            "name": "bdi_medic_extra_1",
             "password": "patata",
-            "asl": "bdimedic.asl"
+            "asl": "bdimedic_extra.asl"
         },
         {
             "rank": "BDIFieldOp",
             "name": "bdi_fieldop_1",
-            "password": "[PASSWORD]",
-            "asl": "bdifieldop.asl"
+            "password": "patata",
+            "asl": "../base-agents/bdifieldop.asl"
         }
     ],
     "allied": [
         {
             "rank": "BDISoldier",
             "name": "bdi_soldier_2",
-            "password": "[PASSWORD]",
-            "asl": "bdisoldier.asl"
+            "password": "patata",
+            "asl": "bdisoldier.asl",
+            "amount": 3
         },
         {
             "rank": "BDIMedic",
             "name": "bdi_medic_extra_2",
-            "password": "[PASSWORD]",
-            "asl": "bdimedic_extra.asl" 
+            "password": "patata",
+            "asl": "bdimedic_extra.asl"
         },
         {
             "rank": "BDIFieldOp",
             "name": "bdi_fieldop_2",
-            "password": "[PASSWORD]",
-            "asl": "bdifieldop.asl"
+            "password": "patata",
+            "asl": "../base-agents/bdifieldop.asl"
         }
     ]
 }

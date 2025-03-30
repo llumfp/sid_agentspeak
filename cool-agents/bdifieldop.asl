@@ -1,6 +1,8 @@
-//TEAM_AXIS
-
 /*
+ * ===================================================
+ * ESTRATEGIA DE AGENTE OPERADOR DE CAMPO PARA PYGOMAS
+ * ===================================================
+ * COMPORTAMIENTO GENERAL:
 ########################## URGENCIA MEDICA! ########################
 Buscar medicinas.
 -> EMPIEZA: cuando tenemos una vida inferior a 50

@@ -1,5 +1,9 @@
-/* Agente Soldado Deliberativo – Ambos Equipos */
-
+/*
+* ==========================================
+ * ESTRATEGIA DE AGENTE SOLDADO PARA PYGOMAS
+ * =========================================
+ * Agente Deliberativo – Ambos Equipos 
+*/
 /* =================== CRENCIAS INICIALES =================== */
 
 h_t(50).

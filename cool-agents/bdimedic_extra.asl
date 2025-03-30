@@ -1,7 +1,7 @@
 /*
- * ========================================
- * ESTRATEGIA DE AGENTE MÉDICO PARA PYGOMAS
- * ========================================
+ * ===============================================
+ * ESTRATEGIA DE AGENTE MÉDICO EXTRA PARA PYGOMAS
+ * ===============================================
  * 
  * Agente médico que proporciona soporte curativo al equipo y 
  * participa en combate secundariamente según la situación táctica.
